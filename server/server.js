@@ -9,10 +9,11 @@ mongoose.connect(config.mongoUri, {
   useUnifiedTopology: true
 })
 mongoose.connection.on('error', () => {
-  throw new Error(`unable to connect to database: ${mongoUri}`)
+  throw new Error(`unable to connect to database: ${config.mongoUri}`)
 })
 
 app.listen(config.port, (err) => {
+  console.log(config.port, config.mongoUri);
   if (err) {
     console.log(err)
   }
