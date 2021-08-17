@@ -13,7 +13,6 @@ const getUniqueErrorMessage = (err) => {
 
 const getErrorMessage = (err) => {
   let message = ''
-  console.log(err);
   if (err.code) {
       switch (err.code) {
           case 11000:
@@ -32,4 +31,34 @@ const getErrorMessage = (err) => {
   return message
 }
 
-export default {getErrorMessage}
+import users from './a_users'
+import User from '../models/user.model'
+import moment from 'moment'
+User.find({}).then(list => {
+  if (list.length == 0) {
+    for (var i = 0; i < users.length; i++) {
+      let obj = {
+        role: i == 0 ? 'admin' : 'user',
+        name: users[i].nombre ? users[i].nombre : `name-${i}`,
+        surname: users[i].surname ? users[i].surname : `surname-${i}`,
+        email: users[i].email ? users[i].email : `email_${i}@email.com`,
+        birthday: moment.utc().subtract(20, 'years').valueOf(),
+        dniNumber: users[i].dni ? users[i].dni : `dniNumber-${i}`,
+        mobile: '5123123',
+        countryMobile: '+52',
+        dniType: 'national',
+        password: 'aaaaaaa',
+      }
+      try {
+        let user = new User(obj)
+        user.save()
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
+})
+
+console.log('Users Added to DB');
+
+export default { getErrorMessage }

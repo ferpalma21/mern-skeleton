@@ -10,36 +10,15 @@ import userRoutes from './routes/user.routes'
 import authRoutes from './routes/auth.routes'
 
 // modules for server side rendering
-// import React from 'react'
-// import ReactDOMServer from 'react-dom/server'
-// import MainRouter from './../client/MainRouter'
-// import { StaticRouter } from 'react-router-dom'
+import React from 'react'
+import ReactDOMServer from 'react-dom/server'
+import MainRouter from './../client/MainRouter'
+import { StaticRouter } from 'react-router-dom'
 
-// import { ServerStyleSheets, ThemeProvider } from '@material-ui/styles'
-// import theme from './../client/theme'
-//end
+import { ServerStyleSheets, ThemeProvider } from '@material-ui/styles'
+import theme from './../client/theme'
 
-//comment out before building for production
-//   const sheets = new ServerStyleSheets()
-//   const context = {}
-//   const markup = ReactDOMServer.renderToString(
-//     sheets.collect(
-//           <StaticRouter location={req.url} context={context}>
-//             <ThemeProvider theme={theme}>
-//               <MainRouter />
-//             </ThemeProvider>
-//           </StaticRouter>
-//         )
-//     )
-//     if (context.url) {
-//       return res.redirect(303, context.url)
-//     }
-//     const css = sheets.toString()
-//     res.status(200).send(Template({
-//       markup: markup,
-//       css: css
-//     }))
-// })
+// comment out before building for production
 import devBundle from './devBundle'
 
 const CURRENT_WORKING_DIR = process.cwd()
@@ -64,27 +43,27 @@ app.use('/dist', express.static(path.join(CURRENT_WORKING_DIR, 'dist')))
 app.use('/', userRoutes)
 app.use('/', authRoutes)
 
-// app.get('*', (req, res) => {
-//   const sheets = new ServerStyleSheets()
-//   const context = {}
-//   const markup = ReactDOMServer.renderToString(
-//     sheets.collect(
-//           <StaticRouter location={req.url} context={context}>
-//             <ThemeProvider theme={theme}>
-//               <MainRouter />
-//             </ThemeProvider>
-//           </StaticRouter>
-//         )
-//     )
-//     if (context.url) {
-//       return res.redirect(303, context.url)
-//     }
-//     const css = sheets.toString()
-//     res.status(200).send(Template({
-//       markup: markup,
-//       css: css
-//     }))
-// })
+app.get('*', (req, res) => {
+  const sheets = new ServerStyleSheets()
+  const context = {}
+  const markup = ReactDOMServer.renderToString(
+    sheets.collect(
+          <StaticRouter location={req.url} context={context}>
+            <ThemeProvider theme={theme}>
+              <MainRouter />
+            </ThemeProvider>
+          </StaticRouter>
+        )
+    )
+    if (context.url) {
+      return res.redirect(303, context.url)
+    }
+    const css = sheets.toString()
+    res.status(200).send(Template({
+      markup: markup,
+      css: css
+    }))
+})
 
 // Catch unauthorised errors
 app.use((err, req, res, next) => {

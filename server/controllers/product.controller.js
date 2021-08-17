@@ -1,13 +1,13 @@
-import User from '../models/user.model'
+import Product from '../models/product.model'
 import extend from 'lodash/extend'
 import errorHandler from './../helpers/dbErrorHandler'
 
 const create = async (req, res) => {
-  const user = new User(req.body)
+  const product = new Product(req.body)
   try {
-    await user.save()
+    await product.save()
     return res.status(200).json({
-      message: "Successfully signed up!"
+      message: "Product Added"
     })
   } catch (err) {
     return res.status(400).json({
@@ -17,37 +17,33 @@ const create = async (req, res) => {
 }
 
 /**
- * Load user and append to req.
+ * Load product and append to req.
  */
 
- const userFind = async (req, res, next, id) => {
+ const productFind = async (req, res, next, id) => {
   try {
-    let users = await User.find(params)
-    if (!users)
-      return res.status('400').json({
-        error: "User not found"
-      })
-    req.data = users
+    let products = await User.find(params)
+    req.data = products
     next()
   } catch (err) {
     return res.status('400').json({
-      error: "Could not retrieve user"
+      error: "Could not retrieve product"
     })
   }
 }
 
-const userByID = async (req, res, next, id) => {
+const productByID = async (req, res, next, id) => {
   try {
-    let user = await User.findById(id)
-    if (!user)
+    let product = await User.findById(id)
+    if (!product)
       return res.status('400').json({
         error: "User not found"
       })
-    req.profile = user
+    req.profile = product
     next()
   } catch (err) {
     return res.status('400').json({
-      error: "Could not retrieve user"
+      error: "Could not retrieve product"
     })
   }
 }
@@ -59,9 +55,10 @@ const read = (req, res) => {
 }
 
 const list = async (req, res) => {
+  console.log('asdasd');
   try {
-    let users = await User.find().select('name email updated created')
-    res.json(users)
+    let products = await User.find().select('name images')
+    res.json(products)
   } catch (err) {
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err)
@@ -71,13 +68,11 @@ const list = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-    let user = req.profile
-    user = extend(user, req.body)
-    user.updated = Date.now()
-    await user.save()
-    user.hashed_password = undefined
-    user.salt = undefined
-    res.json(user)
+    let product = req.data
+    product = extend(product, req.body)
+    product.updated = Date.now()
+    await product.save()
+    res.json(product)
   } catch (err) {
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err)
@@ -87,10 +82,8 @@ const update = async (req, res) => {
 
 const remove = async (req, res) => {
   try {
-    let user = req.profile
-    let deletedUser = await user.remove()
-    deletedUser.hashed_password = undefined
-    deletedUser.salt = undefined
+    let product = req.data
+    let deletedProduct = await product.remove()
     res.json(deletedUser)
   } catch (err) {
     return res.status(400).json({
@@ -101,8 +94,8 @@ const remove = async (req, res) => {
 
 export default {
   create,
-  userFind,
-  userByID,
+  productFind,
+  productByID,
   read,
   list,
   remove,

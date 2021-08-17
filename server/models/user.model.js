@@ -1,11 +1,30 @@
 import mongoose from 'mongoose'
 import crypto from 'crypto'
-
 const UserSchema = new mongoose.Schema({
+  role: {
+    type: String,
+    enum: ['user', 'admin', 'superadmin'],
+    default: 'user'
+  },
   name: {
     type: String,
     trim: true,
-    required: 'Name is required'
+    required: 'Name(s) is required'
+  },
+  surname: {
+    type: String,
+    trim: true,
+    required: 'Surname(s) is required'
+  },
+  mobile: { //in smokapp key is phone
+    type: String,
+    trim: true,
+    required: 'Mobile is required'
+  },
+  countryMobile: {
+    type: String,
+    trim: true,
+    required: 'Lada country mobile is required'
   },
   email: {
     type: String,
@@ -14,16 +33,44 @@ const UserSchema = new mongoose.Schema({
     match: [/.+\@.+\..+/, 'Please fill a valid email address'],
     required: 'Email is required'
   },
-  created: {
-    type: Date,
-    default: Date.now
+  dniNumber: {
+    type: String,
+    trim: true,
+    unique: 'DNI Number already exists',
+    required: 'DNI Number is required'
   },
-  updated: Date,
-  hashed_password: {
+  dniType: {
+    type: String,
+    enum: ['national', 'passport'],
+    required: 'DNI type is required'
+  },
+  dniFront: {
+    type: String,
+  },
+  dniBack: {
+    type: String,
+  },
+  birthday: {
+    type: Date,
+    required: 'Birthday is required'
+  },
+  hashedPassword: {
     type: String,
     required: "Password is required"
   },
-  salt: String
+  salt: String,
+  updated: Date,
+  created: {
+    type: Date,
+    default: Date.now
+  }
+})
+
+UserSchema.pre('birthday', function (next){
+    var ageDifMs = Date.now() - birthday.getTime();
+    var ageDate = new Date(ageDifMs); // miliseconds from epoch
+    Math.abs(ageDate.getUTCFullYear() - 1970);
+    next();
 })
 
 UserSchema
@@ -31,15 +78,24 @@ UserSchema
   .set(function(password) {
     this._password = password
     this.salt = this.makeSalt()
-    this.hashed_password = this.encryptPassword(password)
+    this.hashedPassword = this.encryptPassword(password)
   })
   .get(function() {
     return this._password
   })
 
+UserSchema.path('hashedPassword').validate(function(v) {
+  if (this._password && this._password.length < 6) {
+    this.invalidate('password', 'Password must be at least 6 characters.')
+  }
+  if (this.isNew && !this._password) {
+    this.invalidate('password', 'Password is required')
+  }
+}, null)
+
 UserSchema.methods = {
   authenticate: function(plainText) {
-    return this.encryptPassword(plainText) === this.hashed_password
+    return this.encryptPassword(plainText) === this.hashedPassword
   },
   encryptPassword: function(password) {
     if (!password) return ''
@@ -56,14 +112,5 @@ UserSchema.methods = {
     return Math.round((new Date().valueOf() * Math.random())) + ''
   }
 }
-
-UserSchema.path('hashed_password').validate(function(v) {
-  if (this._password && this._password.length < 6) {
-    this.invalidate('password', 'Password must be at least 6 characters.')
-  }
-  if (this.isNew && !this._password) {
-    this.invalidate('password', 'Password is required')
-  }
-}, null)
 
 export default mongoose.model('User', UserSchema)

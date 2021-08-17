@@ -6,7 +6,7 @@ const config = {
     process.env.MONGO_HOST ||
     'mongodb://ferpalma21:peaceandlove21@' + (process.env.IP || 'localhost') + ':' +
     (process.env.MONGO_PORT || '27017') +
-    '/mern-skeleton?authSource=admin'
+    '/csc-manager?authSource=admin'
 }
 
 export default config
